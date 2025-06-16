@@ -117,11 +117,33 @@ $_SESSION['room_id'] = $room_id;
         .leave-btn:hover {
             background: #c5221f;
         }
+        #background-selector {
+            position: fixed;
+            top: 50%;
+            left: 1rem;
+            transform: translateY(-50%);
+            background: #fff;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        #background-selector select {
+            padding: 0.5rem;
+            width: 200px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+        }
+        #background-selector button {
+            padding: 0.5rem 1rem;
+            margin-top: 0.5rem;
+        }
         @media (max-width: 600px) {
             #video-container { flex-direction: column; margin-top: 2rem; }
             video { width: 100%; }
             #chat-container { width: 90%; left: 5%; bottom: 1rem; }
             #controls { margin: 0 0.5rem; }
+            #background-selector { left: 0.5rem; width: 90%; }
         }
     </style>
 </head>
@@ -138,6 +160,15 @@ $_SESSION['room_id'] = $room_id;
     <div id="controls">
         <button onclick="startScreenShare()">Share Screen</button>
         <button class="leave-btn" onclick="leaveMeeting()">Leave</button>
+    </div>
+    <div id="background-selector">
+        <select id="background-options">
+            <option value="none">No Background</option>
+            <option value="https://images.unsplash.com/photo-1501785888041-af3ef285b470">Nature</option>
+            <option value="https://images.unsplash.com/photo-1519681393784-d120267933ba">City</option>
+            <option value="https://images.unsplash.com/photo-1472214103451-9374bd1c798e">Beach</option>
+        </select>
+        <button onclick="applyBackground()">Apply Background</button>
     </div>
 
     <script src="https://meet.jit.si/external_api.js"></script>
@@ -177,6 +208,24 @@ $_SESSION['room_id'] = $room_id;
             api.dispose();
             window.location.href = 'index.php';
         }
+
+        function applyBackground() {
+            const selectedBackground = document.getElementById('background-options').value;
+            if (selectedBackground === 'none') {
+                api.executeCommand('setVirtualBackground', { enabled: false });
+            } else {
+                api.executeCommand('setVirtualBackground', {
+                    enabled: true,
+                    backgroundType: 'image',
+                    backgroundImageUrl: selectedBackground
+                });
+            }
+        }
+
+        // Ensure Jitsi Meet API is fully loaded before enabling controls
+        api.addEventListener('videoConferenceJoined', () => {
+            console.log('Conference joined, controls are active');
+        });
     </script>
 </body>
 </html>
